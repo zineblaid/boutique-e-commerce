@@ -2,9 +2,10 @@
 session_start();
 require_once("../config/db.php");
 
-$error = "";
+$error   = "";
 $success = "";
-$name = $email = "";
+$name    = "";
+$email   = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name     = trim($_POST["name"] ?? "");
@@ -15,6 +16,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // ── Validation ──
     if (empty($name) || empty($email) || empty($password) || empty($confirm)) {
         $error = "Veuillez remplir tous les champs.";
+    } elseif (strlen($name) < 2) {
+        // ✅ FIX : nom trop court (ex: "a")
+        $error = "Le nom doit contenir au moins 2 caractères.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Adresse email invalide.";
     } elseif (strlen($password) < 8) {
@@ -38,7 +42,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_param("sss", $name, $email, $hashed);
 
             if ($stmt->execute()) {
-                // Auto-login après inscription
                 $user_id = $stmt->insert_id;
                 $_SESSION["user_id"] = $user_id;
                 $_SESSION["email"]   = $email;
@@ -60,11 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign up - FitZone</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -105,32 +104,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 0.85rem;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 28px;
-            list-style: none;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #555;
-            font-size: 0.95rem;
-        }
-
+        .nav-links { display: flex; gap: 28px; list-style: none; }
+        .nav-links a { text-decoration: none; color: #555; font-size: 0.95rem; }
         .nav-links a:hover { color: #0bbcd4; }
 
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
+        .nav-actions { display: flex; align-items: center; gap: 18px; }
+        .nav-actions a { text-decoration: none; font-size: 0.95rem; }
+        .nav-actions a:not(.btn-signup) { color: #555; }
 
-        .nav-actions a {
-            text-decoration: none;
-            color: #555;
-            font-size: 0.95rem;
-        }
-
+        /* ✅ FIX : lien actif pour Sign up */
         .btn-signup {
             background: #0bbcd4;
             color: #fff !important;
@@ -139,9 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-weight: 600;
             transition: background 0.2s;
         }
-
         .btn-signup:hover { background: #09a8be; }
-
         .cart-icon { font-size: 1.2rem; cursor: pointer; }
 
         /* ── Card ── */
@@ -184,7 +164,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 20px;
             text-align: center;
         }
-
         .alert-error   { background: #fff0f0; color: #c0392b; border: 1px solid #f5c6cb; }
         .alert-success { background: #f0fff4; color: #27ae60; border: 1px solid #b2dfdb; }
 
@@ -210,7 +189,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #333;
             transition: border-color 0.2s;
         }
-
         input::placeholder { color: #aab; }
         input:focus { border-color: #0bbcd4; }
 
@@ -234,6 +212,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .strength-medium { width: 66%; background: #f39c12; }
         .strength-strong { width: 100%; background: #27ae60; }
 
+        .strength-label {
+            font-size: 0.78rem;
+            margin-top: 4px;
+            color: #888;
+            min-height: 16px;
+        }
+
         .btn-register {
             width: 100%;
             padding: 13px;
@@ -247,7 +232,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-top: 6px;
             transition: background 0.2s;
         }
-
         .btn-register:hover { background: #09a8be; }
 
         .login-link {
@@ -256,19 +240,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 0.9rem;
             color: #777;
         }
-
         .login-link a {
             color: #0bbcd4;
             text-decoration: none;
             font-weight: 600;
         }
-
         .login-link a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
-<!-- Navbar -->
 <nav>
     <a href="../index.php" class="nav-brand">
         <div class="nav-logo">FZ</div>
@@ -285,7 +266,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </nav>
 
-<!-- Signup card -->
 <div class="page-wrapper">
     <div class="signup-card">
         <h1>Create your account</h1>
@@ -293,6 +273,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <?php if ($error): ?>
             <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <!-- ✅ FIX : bloc $success maintenant affiché -->
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
         <?php endif; ?>
 
         <form method="POST" action="">
@@ -334,6 +319,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="password-strength">
                     <div class="password-strength-bar" id="strength-bar"></div>
                 </div>
+                <div class="strength-label" id="strength-label"></div>
             </div>
 
             <div class="form-group">
@@ -358,17 +344,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <script>
     function checkStrength(value) {
-        const bar = document.getElementById("strength-bar");
+        const bar   = document.getElementById("strength-bar");
+        const label = document.getElementById("strength-label");
         bar.className = "password-strength-bar";
 
-        if (value.length === 0) return;
+        if (value.length === 0) {
+            label.textContent = "";
+            return;
+        }
 
-        const strong = value.length >= 12 && /[A-Z]/.test(value) && /[0-9]/.test(value) && /[^a-zA-Z0-9]/.test(value);
-        const medium = value.length >= 8  && (/[A-Z]/.test(value) || /[0-9]/.test(value));
+        const strong = value.length >= 12
+            && /[A-Z]/.test(value)
+            && /[0-9]/.test(value)
+            && /[^a-zA-Z0-9]/.test(value);
 
-        if (strong)      bar.classList.add("strength-strong");
-        else if (medium) bar.classList.add("strength-medium");
-        else             bar.classList.add("strength-weak");
+        const medium = value.length >= 8
+            && (/[A-Z]/.test(value) || /[0-9]/.test(value));
+
+        if (strong) {
+            bar.classList.add("strength-strong");
+            label.textContent  = "✅ Mot de passe fort";
+            label.style.color  = "#27ae60";
+        } else if (medium) {
+            bar.classList.add("strength-medium");
+            label.textContent  = "⚠️ Mot de passe moyen";
+            label.style.color  = "#f39c12";
+        } else {
+            bar.classList.add("strength-weak");
+            label.textContent  = "❌ Mot de passe faible";
+            label.style.color  = "#e74c3c";
+        }
     }
 </script>
 
