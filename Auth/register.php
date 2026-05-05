@@ -1,5 +1,6 @@
 <?php
 session_start();
+// ✅ FIX : utilise __DIR__ + config.php (PDO) au lieu de db.php
 require_once(__DIR__ . '/../config/config.php');
 
 $error   = "";
@@ -13,11 +14,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST["password"] ?? "";
     $confirm  = $_POST["confirm_password"] ?? "";
 
-    // ── Validation ──
     if (empty($name) || empty($email) || empty($password) || empty($confirm)) {
         $error = "Veuillez remplir tous les champs.";
     } elseif (strlen($name) < 2) {
-        // ✅ FIX : nom trop court (ex: "a")
         $error = "Le nom doit contenir au moins 2 caractères.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Adresse email invalide.";
@@ -26,23 +25,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif ($password !== $confirm) {
         $error = "Les mots de passe ne correspondent pas.";
     } else {
-        // ── Vérifier si l'email existe déjà ──
-        $check = $conn->prepare("SELECT id FROM users WHERE email = ?");
-        $check->bind_param("s", $email);
-        $check->execute();
-        $check->store_result();
+        // ✅ FIX : utilise $pdo (PDO) au lieu de $conn (MySQLi)
+        $check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+        $check->execute([$email]);
 
-        if ($check->num_rows > 0) {
+        if ($check->fetch()) {
             $error = "Cet email est déjà utilisé.";
         } else {
             $hashed = password_hash($password, PASSWORD_DEFAULT);
 
-            $sql  = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sss", $name, $email, $hashed);
+            $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
 
-            if ($stmt->execute()) {
-                $user_id = $stmt->insert_id;
+            if ($stmt->execute([$name, $email, $hashed])) {
+                $user_id = $pdo->lastInsertId();
                 $_SESSION["user_id"] = $user_id;
                 $_SESSION["email"]   = $email;
                 $_SESSION["name"]    = $name;
@@ -71,7 +66,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #333;
         }
 
-        /* ── Navbar ── */
         nav {
             display: flex;
             align-items: center;
@@ -112,7 +106,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .nav-actions a { text-decoration: none; font-size: 0.95rem; }
         .nav-actions a:not(.btn-signup) { color: #555; }
 
-        /* ✅ FIX : lien actif pour Sign up */
         .btn-signup {
             background: #0bbcd4;
             color: #fff !important;
@@ -124,7 +117,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .btn-signup:hover { background: #09a8be; }
         .cart-icon { font-size: 1.2rem; cursor: pointer; }
 
-        /* ── Card ── */
         .page-wrapper {
             min-height: calc(100vh - 68px);
             display: flex;
@@ -156,7 +148,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 32px;
         }
 
-        /* ── Alerts ── */
         .alert {
             padding: 12px 16px;
             border-radius: 8px;
@@ -167,7 +158,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .alert-error   { background: #fff0f0; color: #c0392b; border: 1px solid #f5c6cb; }
         .alert-success { background: #f0fff4; color: #27ae60; border: 1px solid #b2dfdb; }
 
-        /* ── Form ── */
         .form-group { margin-bottom: 20px; }
 
         label {
@@ -192,7 +182,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         input::placeholder { color: #aab; }
         input:focus { border-color: #0bbcd4; }
 
-        /* Indicateur de force du mot de passe */
         .password-strength {
             margin-top: 6px;
             height: 4px;
@@ -257,7 +246,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </a>
     <ul class="nav-links">
         <li><a href="../index.php">Home</a></li>
-        <li><a href="../shop.php">Shop</a></li>
+        <li><a href="../boutique.php">Shop</a></li>
     </ul>
     <div class="nav-actions">
         <span class="cart-icon">🛒</span>
@@ -275,7 +264,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
-        <!-- ✅ FIX : bloc $success maintenant affiché -->
         <?php if ($success): ?>
             <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
         <?php endif; ?>

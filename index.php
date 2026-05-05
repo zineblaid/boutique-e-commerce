@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'config/config.php';
-require_once 'config/produits_query.php';
+require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/config/produits_query.php';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -15,7 +15,7 @@ require_once 'config/produits_query.php';
 </head>
 <body>
 
-<?php include 'includes/header.php'; ?>
+<?php include __DIR__ . '/includes/header.php'; ?>
 
 <!-- ══════════════════════════════
      HERO
@@ -79,7 +79,9 @@ require_once 'config/produits_query.php';
         <h2 class="section-title">Produits Populaires</h2>
         <div class="products-grid">
             <?php
-            $produits = getProduits($pdo, '', '', 8);
+            // ✅ FIX : getProduits() n'existe pas → utilise filterProduits() qui retourne max 8 produits
+            $produits = filterProduits($pdo);
+            $produits = array_slice($produits, 0, 8);
             foreach ($produits as $p):
             ?>
             <div class="product-card">
@@ -87,7 +89,8 @@ require_once 'config/produits_query.php';
                     <img src="<?= htmlspecialchars($p['image']) ?>"
                          alt="<?= htmlspecialchars($p['nom']) ?>"
                          onerror="this.src='https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400'">
-                    <span class="product-badge"><?= htmlspecialchars($p['categorie']) ?></span>
+                    <!-- ✅ FIX : 'categorie' → 'categorie_nom' (nom exact du champ retourné) -->
+                    <span class="product-badge"><?= htmlspecialchars($p['categorie_nom']) ?></span>
                 </div>
                 <div class="product-info">
                     <h3><?= htmlspecialchars($p['nom']) ?></h3>
@@ -124,4 +127,3 @@ require_once 'config/produits_query.php';
 <script src="assets/js/main.js"></script>
 </body>
 </html>
-

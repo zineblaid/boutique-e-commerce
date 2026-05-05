@@ -1,9 +1,11 @@
 <?php
 session_start();
+// ✅ FIX : config.php utilise PDO ($pdo), pas db.php avec $conn
 require_once(__DIR__ . '/../config/config.php');
+
 $error   = "";
 $success = "";
-$email   = ""; // ✅ FIX : initialisé pour éviter l'erreur dans le value= du formulaire
+$email   = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email    = trim($_POST["email"] ?? "");
@@ -14,13 +16,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Adresse email invalide.";
     } else {
+        // ✅ FIX : utilise $pdo (PDO) au lieu de $conn (MySQLi)
         $sql  = "SELECT * FROM users WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-
-        $result = $stmt->get_result();
-        $user   = $result->fetch_assoc();
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user["password"])) {
             $_SESSION["user_id"] = $user["id"];
@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: ../index.php");
             exit();
         } else {
-            sleep(1); // ✅ FIX : ralentit les attaques brute force
+            sleep(1); // ✅ ralentit les attaques brute force
             $error = "Email ou mot de passe incorrect.";
         }
     }
@@ -90,8 +90,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .nav-actions { display: flex; align-items: center; gap: 18px; }
         .nav-actions a { text-decoration: none; font-size: 0.95rem; }
-
-        /* ✅ FIX : lien actif mis en évidence */
         .nav-actions a.active { color: #0bbcd4; font-weight: 700; }
         .nav-actions a:not(.active):not(.btn-signup) { color: #555; }
 
@@ -209,11 +207,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </a>
     <ul class="nav-links">
         <li><a href="../index.php">Home</a></li>
-        <li><a href="../shop.php">Shop</a></li>
+        <li><a href="../boutique.php">Shop</a></li>
     </ul>
     <div class="nav-actions">
         <span class="cart-icon">🛒</span>
-        <a href="login.php" class="active">Login</a> <!-- ✅ FIX : classe active -->
+        <a href="login.php" class="active">Login</a>
         <a href="register.php" class="btn-signup">Sign up</a>
     </div>
 </nav>
