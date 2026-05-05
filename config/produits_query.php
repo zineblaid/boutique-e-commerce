@@ -194,7 +194,7 @@ function updateProduit(
 
 
 //  9. SUPPRIMER UN PRODUIT (utilisé par admin)
-/
+
 function deleteProduit(PDO $pdo, int $id): bool
 {
     $stmt = $pdo->prepare("DELETE FROM produits WHERE id = :id");
