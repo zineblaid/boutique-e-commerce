@@ -22,3 +22,6 @@ if (empty($produits)) {
         echo "----------------------<br>";
     }
 }
+
+
+// mot de passe admin hash bcrypt

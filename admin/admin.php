@@ -1,26 +1,32 @@
 <?php
-session_start();
+require_once __DIR__ . '/../Auth/session_check.php';
+
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/produits_query.php';
 
-// Protection admin
-if (empty($_SESSION['user_id']) || empty($_SESSION['is_admin'])) {
-    header('Location: login.php');
-    exit;
-}
-
+// Charger les données
 $produits   = getAllProduits($pdo);
 $categories = getAllCategories($pdo);
+
+// Flash messages
 $flash      = $_SESSION['flash_success'] ?? null;
-$flash_err  = $_SESSION['flash_error']   ?? null;
-unset($_SESSION['flash_success'], $_SESSION['flash_error']);
+$flash_err  = $_SESSION['flash_error'] ?? null;
+
+unset($_SESSION['flash_success']);
+unset($_SESSION['flash_error']);
 
 // Statistiques
 $total_produits = count($produits);
-$total_cats     = count($categories);
-$total_stock    = array_sum(array_column($produits, 'stock'));
-$stock_faible   = count(array_filter($produits, fn($p) => $p['stock'] <= 5));
-$prix_moyen     = $total_produits > 0
+
+$total_cats = count($categories);
+
+$total_stock = array_sum(array_column($produits, 'stock'));
+
+$stock_faible = count(array_filter($produits, function($p) {
+    return $p['stock'] <= 5;
+}));
+
+$prix_moyen = $total_produits > 0
     ? array_sum(array_column($produits, 'prix')) / $total_produits
     : 0;
 ?>
@@ -419,7 +425,8 @@ $prix_moyen     = $total_produits > 0
     </nav>
 
     <div class="sidebar-footer">
-        <a href="../Auth/logout.php" class="nav-item" style="color:#ef4444;">
+        <a href="profil.php" class="nav-item"><i class="fas fa-user-cog"></i> Mon profil</a>
+        <a href="logout.php" class="nav-item" style="color:#ef4444;">
             <i class="fas fa-sign-out-alt"></i> Déconnexion
         </a>
     </div>

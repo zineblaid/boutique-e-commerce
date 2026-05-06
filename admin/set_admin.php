@@ -1,5 +1,16 @@
 <?php
-// Fichier utilitaire — redirige vers la page de login admin
-// Accéder à : http://localhost/BOUTIQUE-E-COMMERCE/admin/login.php
-header('Location: admin/login.php');
-exit;
+
+require_once __DIR__ . '/../config/config.php';
+
+$newPassword = password_hash('admin123', PASSWORD_DEFAULT);
+
+$stmt = $pdo->prepare("
+    UPDATE users
+    SET password = ?
+    WHERE email = ?
+");
+
+$stmt->execute([$newPassword, 'admin@ecommerce.dz']);
+
+echo "Mot de passe admin mis à jour avec succès.";
+?>

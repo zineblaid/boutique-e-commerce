@@ -1,37 +1,59 @@
 <?php
 session_start();
-// ✅ FIX : config.php utilise PDO ($pdo), pas db.php avec $conn
-require_once(__DIR__ . '/../config/config.php');
 
-$error   = "";
-$success = "";
-$email   = "";
+// 1. Inclusion de la configuration (qui définit $pdo)
+require_once __DIR__ . '/../config/config.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email    = trim($_POST["email"] ?? "");
-    $password = $_POST["password"] ?? "";
+// Redirection automatique si déjà connecté
+if (!empty($_SESSION['admin_id']) && !empty($_SESSION['is_admin'])) {
+    header('Location: admin.php');
+    exit;
+}
 
-    if (empty($email) || empty($password)) {
-        $error = "Veuillez remplir tous les champs.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = "Adresse email invalide.";
+$error = '';
+$email = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email'] ?? '');
+    $pass  = $_POST['password'] ?? '';
+
+    if (empty($email) || empty($pass)) {
+        $error = 'Veuillez remplir tous les champs.';
     } else {
-        // ✅ FIX : utilise $pdo (PDO) au lieu de $conn (MySQLi)
-        $sql  = "SELECT * FROM users WHERE email = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            // 2. Recherche de l'utilisateur par email
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($password, $user["password"])) {
-            $_SESSION["user_id"] = $user["id"];
-            $_SESSION["email"]   = $user["email"];
-            $_SESSION["name"]    = $user["name"] ?? "";
+            // 3. Vérification du mot de passe ET du rôle admin
+            if ($user && password_verify($pass, $user['password'])) {
+                
+                if ($user['role'] === 'admin') {
+                    // RÉGÉNÉRATION DE SESSION
+                    session_regenerate_id(true);
 
-            header("Location: ../index.php");
-            exit();
-        } else {
-            sleep(1); // ✅ ralentit les attaques brute force
-            $error = "Email ou mot de passe incorrect.";
+                    // --- INITIALISATION DE TOUTES LES CLÉS POSSIBLES ---
+                    // Utilisé par admin.php et profile.php
+                    $_SESSION['admin_id']       = $user['id'];
+                    $_SESSION['is_admin']       = true;
+                    $_SESSION['admin_username'] = $user['name'] ?? 'Admin';
+                    $_SESSION['admin_email']    = $user['email'];
+
+                    // Utilisé par d'autres parties du site
+                    $_SESSION['user_id']        = $user['id'];
+                    $_SESSION['role']           = 'admin';
+
+                    header('Location: admin.php');
+                    exit;
+                } else {
+                    $error = "Accès refusé : vous n'êtes pas administrateur.";
+                }
+            } else {
+                $error = "Email ou mot de passe incorrect.";
+            }
+        } catch (PDOException $e) {
+            $error = "Erreur de connexion à la base de données.";
         }
     }
 }

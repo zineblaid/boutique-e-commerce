@@ -4,7 +4,7 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/produits_query.php';
 
 // Protection admin
-if (empty($_SESSION['user_id']) || empty($_SESSION['is_admin'])) {
+if (empty($_SESSION['admin_id']) || empty($_SESSION['is_admin'])) {
     header('Location: login.php');
     exit;
 }
