@@ -6,19 +6,19 @@ require_once 'config/produits_query.php';
 // Récupérer l'ID depuis l'URL ex: produit.php?id=3
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) {
-    header('Location: boutique.php');
+    header('Location: index.php');
     exit;
 }
 
 // Récupérer le produit depuis la BDD
 $produit = getProduitById($pdo, $id);
 if (!$produit) {
-    header('Location: boutique.php');
+    header('Location: index.php');
     exit;
 }
 
-// Produits similaires (même catégorie, sans le produit actuel)
-$similaires = getProduits($pdo, $produit['categorie'], '', 5);
+// ✅ FIX : getProduits() n'existe pas → utilise getProduitsByCategorie()
+$similaires = getProduitsByCategorie($pdo, $produit['categorie_slug']);
 $similaires = array_filter($similaires, fn($p) => $p['id'] != $id);
 ?>
 <!DOCTYPE html>
@@ -35,14 +35,15 @@ $similaires = array_filter($similaires, fn($p) => $p['id'] != $id);
 
 <?php include 'includes/header.php'; ?>
 
-<!-- BREADCRUMB (chemin de navigation) -->
+<!-- BREADCRUMB -->
 <div class="breadcrumb">
     <a href="index.php">Accueil</a>
     <i class="fas fa-chevron-right" style="font-size:.7rem;"></i>
-    <a href="boutique.php">Boutique</a>
+    <a href="index.php">Boutique</a>
     <i class="fas fa-chevron-right" style="font-size:.7rem;"></i>
-    <a href="boutique.php?categorie=<?= urlencode($produit['categorie']) ?>">
-        <?= htmlspecialchars($produit['categorie']) ?>
+    <!-- ✅ FIX : 'categorie' → 'categorie_slug' et 'categorie_nom' -->
+    <a href="index.php?categorie=<?= urlencode($produit['categorie_slug']) ?>">
+        <?= htmlspecialchars($produit['categorie_nom']) ?>
     </a>
     <i class="fas fa-chevron-right" style="font-size:.7rem;"></i>
     <span><?= htmlspecialchars($produit['nom']) ?></span>
@@ -64,8 +65,9 @@ $similaires = array_filter($similaires, fn($p) => $p['id'] != $id);
             <!-- INFOS PRODUIT -->
             <div class="product-detail-info">
 
+                <!-- ✅ FIX : 'categorie' → 'categorie_nom' -->
                 <span class="product-badge" style="display:inline-block;margin-bottom:16px;font-size:.8rem;">
-                    <i class="fas fa-tag"></i> <?= htmlspecialchars($produit['categorie']) ?>
+                    <i class="fas fa-tag"></i> <?= htmlspecialchars($produit['categorie_nom']) ?>
                 </span>
 
                 <h1><?= htmlspecialchars($produit['nom']) ?></h1>
@@ -88,7 +90,7 @@ $similaires = array_filter($similaires, fn($p) => $p['id'] != $id);
                        class="btn-primary" id="add-to-cart">
                         <i class="fas fa-cart-plus"></i> Ajouter au panier
                     </a>
-                    <a href="boutique.php" class="btn-secondary">
+                    <a href="index.php" class="btn-secondary">
                         <i class="fas fa-arrow-left"></i> Retour
                     </a>
                 </div>
@@ -130,7 +132,8 @@ $similaires = array_filter($similaires, fn($p) => $p['id'] != $id);
                     <img src="<?= htmlspecialchars($p['image']) ?>"
                          alt="<?= htmlspecialchars($p['nom']) ?>"
                          onerror="this.src='https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400'">
-                    <span class="product-badge"><?= htmlspecialchars($p['categorie']) ?></span>
+                    <!-- ✅ FIX : 'categorie' → 'categorie_nom' -->
+                    <span class="product-badge"><?= htmlspecialchars($p['categorie_nom']) ?></span>
                 </div>
                 <div class="product-info">
                     <h3><?= htmlspecialchars($p['nom']) ?></h3>
