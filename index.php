@@ -17,9 +17,7 @@ require_once 'config/produits_query.php';
 
 <?php include 'includes/header.php'; ?>
 
-<!-- ══════════════════════════════
-     HERO
-══════════════════════════════ -->
+<!-- ══ HERO ══ -->
 <section class="hero">
     <div class="hero-overlay"></div>
     <div class="hero-content">
@@ -32,48 +30,41 @@ require_once 'config/produits_query.php';
     </div>
 </section>
 
-<!-- ══════════════════════════════
-     CATÉGORIES
-══════════════════════════════ -->
+<!-- ══ CATÉGORIES — slugs identiques à la BDD ══ -->
 <section class="categories" id="categories">
     <div class="container">
         <h2 class="section-title">Nos Catégories</h2>
         <div class="cat-grid">
-            <a href="boutique.php?categorie=homme" class="cat-card">
-                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400" alt="Homme">
-                <div class="cat-label"><i class="fas fa-mars"></i> Homme</div>
+
+            <a href="boutique.php?categorie=vetement-homme" class="cat-card">
+                <img src="assets/images/vetement_homme.jpg" alt="Vêtement Homme"
+                     onerror="this.src='https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400'">
+                <div class="cat-label"><i class="fas fa-mars"></i> Vêtement Homme</div>
             </a>
-            <a href="boutique.php?categorie=femme" class="cat-card">
-                <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400" alt="Femme">
-                <div class="cat-label"><i class="fas fa-venus"></i> Femme</div>
+
+            <a href="boutique.php?categorie=vetement-femme" class="cat-card">
+                <img src="assets/images/vetement_femme.jpg" alt="Vêtement Femme"
+                     onerror="this.src='https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400'">
+                <div class="cat-label"><i class="fas fa-venus"></i> Vêtement Femme</div>
             </a>
-            <a href="boutique.php?categorie=vetement" class="cat-card">
-                <img src="https://images.unsplash.com/photo-1556906781-9a412961a28d?w=400" alt="Vêtements">
-                <div class="cat-label"><i class="fas fa-tshirt"></i> Vêtements</div>
-            </a>
-            <a href="boutique.php?categorie=food" class="cat-card">
-                <img src="https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400" alt="Nutrition">
+
+            <a href="boutique.php?categorie=nutrition" class="cat-card">
+                <img src="assets/images/nutrition.jpg" alt="Nutrition"
+                     onerror="this.src='https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400'">
                 <div class="cat-label"><i class="fas fa-blender"></i> Nutrition</div>
             </a>
-            <a href="boutique.php?categorie=accessoire" class="cat-card">
-                <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400" alt="Accessoires">
-                <div class="cat-label"><i class="fas fa-dumbbell"></i> Accessoires</div>
+
+            <a href="boutique.php?categorie=materiel" class="cat-card">
+                <img src="assets/images/materiel.jpg" alt="Matériel"
+                     onerror="this.src='https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400'">
+                <div class="cat-label"><i class="fas fa-dumbbell"></i> Matériel</div>
             </a>
-            <a href="boutique.php?categorie=tapis" class="cat-card">
-                <img src="https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400" alt="Tapis">
-                <div class="cat-label"><i class="fas fa-layer-group"></i> Tapis & Sol</div>
-            </a>
-            <a href="boutique.php?categorie=outil" class="cat-card">
-                <img src="https://images.unsplash.com/photo-1517963628607-235ccdd5476c?w=400" alt="Outils">
-                <div class="cat-label"><i class="fas fa-tools"></i> Petits Outils</div>
-            </a>
+
         </div>
     </div>
 </section>
 
-<!-- ══════════════════════════════
-     PRODUITS VEDETTES
-══════════════════════════════ -->
+<!-- ══ PRODUITS VEDETTES ══ -->
 <section class="featured-products">
     <div class="container">
         <h2 class="section-title">Produits Populaires</h2>
@@ -109,9 +100,7 @@ require_once 'config/produits_query.php';
     </div>
 </section>
 
-<!-- ══════════════════════════════
-     BANNIÈRE PROMO
-══════════════════════════════ -->
+<!-- ══ BANNIÈRE PROMO ══ -->
 <section class="promo-banner">
     <div class="promo-content">
         <h2>Livraison gratuite dès 5 000 DA 🚀</h2>
@@ -124,4 +113,3 @@ require_once 'config/produits_query.php';
 <script src="assets/js/main.js"></script>
 </body>
 </html>
-
