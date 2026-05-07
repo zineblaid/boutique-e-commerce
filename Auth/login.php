@@ -1,6 +1,5 @@
 <?php
 session_start();
-// ✅ FIX : config.php utilise PDO ($pdo), pas db.php avec $conn
 require_once(__DIR__ . '/../config/config.php');
 
 $error   = "";
@@ -16,7 +15,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Adresse email invalide.";
     } else {
-        // ✅ FIX : utilise $pdo (PDO) au lieu de $conn (MySQLi)
         $sql  = "SELECT * FROM users WHERE email = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$email]);
@@ -30,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: ../index.php");
             exit();
         } else {
-            sleep(1); // ✅ ralentit les attaques brute force
+            sleep(1);
             $error = "Email ou mot de passe incorrect.";
         }
     }
@@ -42,67 +40,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - FitZone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Outfit', -apple-system, sans-serif;
             background-color: #f8f9fa;
             color: #333;
         }
-
-        /* ── Navbar ── */
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 40px;
-            background: #fff;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #333;
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-
-        .nav-logo {
-            width: 38px;
-            height: 38px;
-            background: #0bbcd4;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: 800;
-            font-size: 0.85rem;
-        }
-
-        .nav-links { display: flex; gap: 28px; list-style: none; }
-        .nav-links a { text-decoration: none; color: #555; font-size: 0.95rem; }
-        .nav-links a:hover { color: #0bbcd4; }
-
-        .nav-actions { display: flex; align-items: center; gap: 18px; }
-        .nav-actions a { text-decoration: none; font-size: 0.95rem; }
-        .nav-actions a.active { color: #0bbcd4; font-weight: 700; }
-        .nav-actions a:not(.active):not(.btn-signup) { color: #555; }
-
-        .btn-signup {
-            background: #0bbcd4;
-            color: #fff !important;
-            padding: 9px 22px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-        .btn-signup:hover { background: #09a8be; }
-        .cart-icon { font-size: 1.2rem; cursor: pointer; }
 
         /* ── Login card ── */
         .page-wrapper {
@@ -162,12 +109,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border: 1.5px solid #dde2e8;
             border-radius: 8px;
             font-size: 0.95rem;
-            transition: border-color 0.2s;
+            background: #f0f4f8;
+            transition: border-color 0.2s, background 0.2s;
             outline: none;
             color: #333;
+            font-family: 'Outfit', sans-serif;
         }
         input::placeholder { color: #aab; }
-        input:focus { border-color: #0bbcd4; }
+        input:focus { border-color: #0bbcd4; background: #fff; }
 
         .btn-login {
             width: 100%;
@@ -178,6 +127,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 8px;
             font-size: 1rem;
             font-weight: 600;
+            font-family: 'Outfit', sans-serif;
             cursor: pointer;
             margin-top: 6px;
             transition: background 0.2s;
@@ -200,21 +150,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
-<nav>
-    <a href="../index.php" class="nav-brand">
-        <div class="nav-logo">FZ</div>
-        FitZone
-    </a>
-    <ul class="nav-links">
-        <li><a href="../index.php">Home</a></li>
-        <li><a href="../boutique.php">Shop</a></li>
-    </ul>
-    <div class="nav-actions">
-        <span class="cart-icon">🛒</span>
-        <a href="login.php" class="active">Login</a>
-        <a href="register.php" class="btn-signup">Sign up</a>
-    </div>
-</nav>
+<?php include __DIR__ . '/../includes/header.php'; ?>
 
 <div class="page-wrapper">
     <div class="login-card">
@@ -257,7 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </form>
 
         <p class="signup-link">
-            Don't have an account? <a href="register.php">Sign up</a>
+            Don't have an account? <a href="./register.php">Sign up</a>
         </p>
     </div>
 </div>
