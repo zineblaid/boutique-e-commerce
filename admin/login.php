@@ -1,55 +1,48 @@
 <?php
 session_start();
-
 require_once __DIR__ . '/../config/config.php';
 
-// Si déjà connecté
+// 1. Redirection si déjà connecté — vérification stricte pour éviter les boucles
 if (
-    isset($_SESSION['admin_id']) &&
-    isset($_SESSION['role']) &&
-    $_SESSION['role'] === 'admin'
+    !empty($_SESSION['admin_id']) &&
+    !empty($_SESSION['user_id']) &&
+    !empty($_SESSION['is_admin']) &&
+    isset($_SESSION['role']) && $_SESSION['role'] === 'admin'
 ) {
-    header('Location: admin.php');
+    header('Location: profil.php');
     exit();
 }
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
     if (!empty($email) && !empty($password)) {
-
-        $stmt = $pdo->prepare("
-            SELECT * 
-            FROM users 
-            WHERE email = ? 
-            AND role = 'admin'
-            LIMIT 1
-        ");
-
+        
+        // --- ÉTAPE CRUCIALE : On récupère l'admin d'abord ---
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND role = 'admin' LIMIT 1");
         $stmt->execute([$email]);
+        $admin = $stmt->fetch(PDO::FETCH_ASSOC); // C'est ici que la variable $admin est créée !
 
-        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-       
+        // --- Ensuite, on vérifie si $admin existe ET si le mot de passe est bon ---
         if ($admin && password_verify($password, $admin['password'])) {
-
             session_regenerate_id(true);
 
-            $_SESSION['admin_id'] = $admin['id'];
-            $_SESSION['role'] = 'admin';
-            $_SESSION['admin_name'] = $admin['name'];
+            // On remplit TOUTES les variables de session pour profil.php et admin.php
+            $_SESSION['admin_id']    = $admin['id'];
+            $_SESSION['user_id']     = $admin['id'];    // Requis par la ligne 10 de profil.php
+            $_SESSION['role']        = 'admin';
+            $_SESSION['is_admin']    = true;           // Requis par la ligne 19 de profil.php
+            $_SESSION['admin_name']  = $admin['name'];
             $_SESSION['admin_email'] = $admin['email'];
 
-            header('Location: admin.php');
+            header('Location: profil.php');
             exit();
-
         } else {
-            $error = "Email ou mot de passe incorrect.";
+            $error = "Identifiants incorrects ou accès non autorisé.";
         }
-
     } else {
         $error = "Veuillez remplir tous les champs.";
     }

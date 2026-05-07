@@ -6,23 +6,10 @@ require_once __DIR__ . '/../config/config.php';
 /* =========================
    VERIFICATION CONNEXION
 ========================= */
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || empty($_SESSION['admin_id']) || empty($_SESSION['is_admin']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
 }
-
-/* =========================
-   VERIFICATION ADMIN
-========================= */
-if (
-    empty($_SESSION['admin_id']) ||
-    empty($_SESSION['is_admin']) ||
-    $_SESSION['role'] !== 'admin'
-) {
-    header("Location: login.php");
-    exit();
-}
-
 $admin_id = (int) $_SESSION['admin_id'];
 
 /* =========================
