@@ -7,9 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (!isset($_SESSION["user_id"])) {
-    // ✅ FIX : on sauvegarde l'URL demandée pour rediriger après login
-    $_SESSION["redirect_after_login"] = $_SERVER["REQUEST_URI"];
-
+    $_SESSION["redirect_after_login"] = $_SERVER["REQUEST_URI"] ?? "../index.php";
     header("Location: ../auth/login.php");
     exit();
 }
