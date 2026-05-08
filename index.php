@@ -64,17 +64,17 @@ require_once __DIR__ . '/config/produits_query.php';
         <div class="cat-grid" style="grid-template-columns: repeat(3, 1fr);">
 
             <a href="boutique.php?categorie=vetement" class="cat-card">
-                <img src="https://images.unsplash.com/photo-1556906781-9a412961a28d?w=400" alt="Vêtements">
+                <img src="admin/images/vetement_homme.jpg" alt="Vêtements">
                 <div class="cat-label"><i class="fas fa-tshirt"></i> Vêtements</div>
             </a>
 
             <a href="boutique.php?categorie=materiel" class="cat-card">
-                <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400" alt="Matériel">
+                <img src="admin/images/materiel.jpg"       alt="Matériel">
                 <div class="cat-label"><i class="fas fa-dumbbell"></i> Matériel</div>
             </a>
 
             <a href="boutique.php?categorie=nutrition" class="cat-card">
-                <img src="https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400" alt="Nutrition">
+                <img src="admin/images/nutrition.jpg"      alt="Nutrition">
                 <div class="cat-label"><i class="fas fa-blender"></i> Nutrition</div>
             </a>
 
