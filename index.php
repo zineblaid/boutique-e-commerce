@@ -64,7 +64,7 @@ require_once __DIR__ . '/config/produits_query.php';
         <div class="cat-grid" style="grid-template-columns: repeat(3, 1fr);">
 
             <a href="boutique.php?categorie=vetement" class="cat-card">
-                <img src="admin/images/vetement_homme.jpg" alt="Vêtements">
+                <img src="admin/images/vetement.jpg" alt="Vêtements">
                 <div class="cat-label"><i class="fas fa-tshirt"></i> Vêtements</div>
             </a>
 
